@@ -1,0 +1,37 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    container_name: teste-postgres
+    restart: unless-stopped
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=teste
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  server:
+    build:
+      context: ./server/
+    command: yarn start
+    volumes:
+      - ./server/:/usr/app
+    ports:
+      - "9000:9000"
+  client:
+    build:
+      context: ./client/
+    command: yarn start
+    volumes:
+      - ./client/:/usr/app
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
